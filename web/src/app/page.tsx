@@ -137,7 +137,7 @@ export default function HomePage() {
                         {record.date.toLocaleDateString("en-GB")}
                       </a>
                     </td>
-                    <td className="px-6 py-4 text-sm text-blue-600 hover:underline text-center">
+                    <td className="px-6 py-4 text-sm text-center">
                       {record.isCompleted ? "✅" : "❌"}
                     </td>
                   </motion.tr>
