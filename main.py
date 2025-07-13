@@ -45,7 +45,7 @@ def run():
 
         response = (
             supabase.table("clues_by_sam_links")
-            .insert({"date": today, "link": str(copied_text)})
+            .insert({"date": today, "link": str(copied_text), "is_completed": False})
             .execute()
         )
         print(response)

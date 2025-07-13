@@ -9,7 +9,14 @@ const supabase = createClient(
 type Record = {
   date: Date
   link: string
+  isCompleted: boolean
 }
+
+type DBRecord = {
+    date: string // still string at first, Supabase returns date as ISO string
+    link: string
+    is_completed: boolean
+  }
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -33,7 +40,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('clues_by_sam_links')
-    .select('date, link')
+    .select('date, link, is_completed')
     .gte('date', from)
     .lt('date', toStr)
     .order('date', { ascending: false })
@@ -43,9 +50,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error }, { status: 500 })
   }
 
-  const records: Record[] = data.map((item: Record) => ({
+  const records: Record[] = data.map((item: DBRecord) => ({
     date: new Date(item.date),
     link: item.link,
+    isCompleted: item.is_completed,
   }))
 
   return NextResponse.json(records)

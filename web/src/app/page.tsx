@@ -6,6 +6,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 type Record = {
   date: Date;
   link: string;
+  isCompleted: boolean;
 };
 
 export default function HomePage() {
@@ -22,6 +23,7 @@ export default function HomePage() {
       const parsed: Record[] = json.map((item: Record) => ({
         date: new Date(item.date),
         link: item.link,
+        isCompleted: item.isCompleted,
       }));
 
       setData(parsed);
@@ -112,6 +114,9 @@ export default function HomePage() {
                   <th className="px-6 py-3 text-sm font-bold text-blue-900 uppercase tracking-wider text-center">
                     Date
                   </th>
+                  <th className="px-6 py-3 text-sm font-bold text-blue-900 uppercase tracking-wider text-center">
+                    Done
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
@@ -131,6 +136,9 @@ export default function HomePage() {
                       >
                         {record.date.toLocaleDateString("en-GB")}
                       </a>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-blue-600 hover:underline text-center">
+                      {record.isCompleted ? "✅" : "❌"}
                     </td>
                   </motion.tr>
                 ))}
