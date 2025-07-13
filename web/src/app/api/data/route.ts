@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error }, { status: 500 })
   }
 
-  const records: Record[] = data.map((item: any) => ({
+  const records: Record[] = data.map((item: Record) => ({
     date: new Date(item.date),
     link: item.link,
   }))
