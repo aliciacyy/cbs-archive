@@ -43,7 +43,6 @@ def run():
         # create date in yyyy-mm-dd format
         today = date.today().isoformat()
 
-        print("copied_text:", copied_text)
         response = (
             supabase.table("clues_by_sam_links")
             .insert({"date": today, "link": str(copied_text)})
