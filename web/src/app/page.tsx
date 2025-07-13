@@ -19,7 +19,7 @@ export default function HomePage() {
       const res = await fetch(`/api/data?date=${month.toISOString()}`)
       const json = await res.json();
 
-      const parsed: Record[] = json.map((item: any) => ({
+      const parsed: Record[] = json.map((item: Record) => ({
         date: new Date(item.date),
         link: item.link,
       }));
@@ -29,7 +29,7 @@ export default function HomePage() {
     }
 
     fetchData();
-  }, []);
+  }, [month]);
 
   function changeMonth(direction: "prev" | "next") {
     setMonth((prev) => {
