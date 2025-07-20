@@ -1,9 +1,20 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import { supabasePublic } from '@/lib/supabaseClient';
 import Hero from '@/components/Hero';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { DialogClose } from '@radix-ui/react-dialog';
 
 type Record = {
   date: Date;
@@ -19,51 +30,57 @@ export default function HomePage() {
   const [data, setData] = useState<Record[]>([]);
   const [loading, setLoading] = useState(true);
   const [month, setMonth] = useState(new Date());
+  const [userId, setUserId] = useState<string | null>(null);
 
   const MIN_MONTH = new Date(2025, 6, 1);
 
   const formatDateOnly = (date: string | Date) =>
     new Date(date).toISOString().split('T')[0];
 
+  const fetchFromDB = useCallback(async () => {
+    const { data: completedData, error: completedError } = await supabasePublic
+      .from('completed_clues')
+      .select('*');
+
+    if (completedError) {
+      console.error('Supabase error:', completedError);
+    }
+
+    // Step 2: Now fetch clue data by month
+    try {
+      const res = await fetch(`/api/data?date=${month.toISOString()}`);
+      const json = await res.json();
+
+      const parsed: Record[] = json.map((item: Record) => ({
+        date: new Date(item.date),
+        link: item.link,
+        isCompleted:
+          completedData === null
+            ? false
+            : completedData.some(
+                (clue: UserData) =>
+                  formatDateOnly(clue.date) === formatDateOnly(item.date)
+              ),
+      }));
+
+      setData(parsed);
+    } catch (err) {
+      console.error('Failed to fetch main data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [month]);
+
   useEffect(() => {
     async function fetchAll() {
       // Step 1: Check if user is authenticated and fetch completed_clues
-      await supabasePublic.auth.getUser();
+      const loggedUser = await supabasePublic.auth.getUser();
+      setUserId(loggedUser.data.user ? loggedUser.data.user.id : null);
 
-      const { data: completedData, error: completedError } =
-        await supabasePublic.from('completed_clues').select('*');
-
-      if (completedError) {
-        console.error('Supabase error:', completedError);
-      }
-
-      // Step 2: Now fetch clue data by month
-      try {
-        const res = await fetch(`/api/data?date=${month.toISOString()}`);
-        const json = await res.json();
-
-        const parsed: Record[] = json.map((item: Record) => ({
-          date: new Date(item.date),
-          link: item.link,
-          isCompleted:
-            completedData === null
-              ? false
-              : completedData.some(
-                  (clue: UserData) =>
-                    formatDateOnly(clue.date) === formatDateOnly(item.date)
-                ),
-        }));
-
-        setData(parsed);
-      } catch (err) {
-        console.error('Failed to fetch main data:', err);
-      } finally {
-        setLoading(false);
-      }
+      await fetchFromDB();
     }
-
     fetchAll();
-  }, [month]);
+  }, [fetchFromDB]);
 
   function changeMonth(direction: 'prev' | 'next') {
     setMonth((prev) => {
@@ -71,6 +88,25 @@ export default function HomePage() {
       newDate.setMonth(prev.getMonth() + (direction === 'next' ? 1 : -1));
       return newDate;
     });
+  }
+
+  async function updateRecord(dateId: Date) {
+    if (userId) {
+      const { error: insertError } = await supabasePublic
+        .from('completed_clues')
+        .insert([
+          {
+            date: dateId,
+            user_id: userId,
+          },
+        ]);
+
+      if (insertError) {
+        console.error('Failed to insert completed clue:', insertError.message);
+      } else {
+        await fetchFromDB();
+      }
+    }
   }
 
   const isNextMonthInFuture = (() => {
@@ -141,10 +177,10 @@ export default function HomePage() {
               <table className="min-w-full divide-y divide-gray-200 text-center">
                 <thead className="bg-blue-100">
                   <tr>
-                    <th className="px-6 py-3 text-sm font-bold text-blue-900 uppercase tracking-wider text-center">
+                    <th className="w-1/2 px-6 py-3 text-sm font-bold text-blue-900 uppercase tracking-wider text-center border-r border-gray-200">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-sm font-bold text-blue-900 uppercase tracking-wider text-center">
+                    <th className="w-1/2 px-6 py-3 text-sm font-bold text-blue-900 uppercase tracking-wider text-center">
                       Done
                     </th>
                   </tr>
@@ -156,9 +192,17 @@ export default function HomePage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: index * 0.05 }}
-                      className="hover:bg-blue-50 transition"
+                      className="hover:bg-blue-50 transition cursor-pointer"
                     >
-                      <td className="px-6 py-4 text-sm text-blue-600 hover:underline text-center">
+                      <td
+                        className="px-6 py-4 text-sm text-blue-600 hover:underline text-center border-b border-l border-r border-gray-200"
+                        onClick={(e) => {
+                          const anchor = e.currentTarget.querySelector('a');
+                          if (anchor) {
+                            anchor.click();
+                          }
+                        }}
+                      >
                         <a
                           href={record.link}
                           target="_blank"
@@ -167,9 +211,48 @@ export default function HomePage() {
                           {record.date.toLocaleDateString('en-GB')}
                         </a>
                       </td>
-                      <td className="px-6 py-4 text-sm text-center">
-                        {record.isCompleted ? '✅' : '❌'}
-                      </td>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <td
+                            className="px-6 py-4 text-sm text-center border-b border-r border-gray-200"
+                            onClick={(e) => {
+                              if (!userId || record.isCompleted) {
+                                e.preventDefault(); // prevent Dialog from opening
+                              }
+                            }}
+                          >
+                            {record.isCompleted ? '✅' : '❌'}
+                          </td>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle className="text-center mb-4">
+                              {record.date.toLocaleDateString('en-GB')}
+                            </DialogTitle>
+                            <DialogDescription className="text-center">
+                              Confirm completion of the puzzle?
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <Button
+                              asChild
+                              className="cursor-pointer bg-blue-500 hover:bg-blue-600"
+                              onClick={() => {
+                                updateRecord(record.date);
+                              }}
+                            >
+                              <DialogClose>Yes</DialogClose>
+                            </Button>
+                            <Button
+                              asChild
+                              variant="secondary"
+                              className="cursor-pointer"
+                            >
+                              <DialogClose>No</DialogClose>
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     </motion.tr>
                   ))}
                 </tbody>

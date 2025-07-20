@@ -9,8 +9,8 @@ export default function Hero() {
         <h1 className="text-4xl md:text-6xl font-extrabold text-blue-800 leading-tight">
           Clues by Sam Archive
         </h1>
-        <p className="mt-6 text-lg md:text-xl text-blue-600 max-w-2xl mx-auto">
-          List of past Clues by Sam puzzles.
+        <p className="mt-6 text-lg md:text-xl max-w-2xl mx-auto">
+          Archive of past Clues by Sam puzzles.
         </p>
 
         <div className="mt-8 flex justify-center gap-4 flex-wrap">
@@ -22,9 +22,11 @@ export default function Hero() {
               Today&apos;s puzzle
             </Link>
           </Button>
-          <Button className="cursor-pointer text-blue-600 bg-transparent border border-blue-600 px-4 py-2 rounded hover:bg-blue-50 transition">
-            {/* <Link href="/about">Learn more</Link> */}
-            Learn more
+          <Button
+            asChild
+            className="cursor-pointer text-blue-600 bg-transparent border border-blue-600 px-4 py-2 rounded hover:bg-blue-50 transition"
+          >
+            <Link href="/about">Learn more</Link>
           </Button>
         </div>
       </div>
