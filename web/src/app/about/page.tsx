@@ -34,10 +34,9 @@ export default function AboutPage() {
         Then what&apos;s this site for?
       </h2>
       <p className="text-lg mb-4">
-        Currently, the site does not have a way for players to be able to play
-        puzzles from previous days. Thankfully, it is still possible to play
-        past puzzles by using the &quot;Share Progress&quot; feature on the
-        website.
+        Currently, the actual site doesn&apos;t offer a way to replay puzzles
+        from previous days. However, you can still access them using the
+        &quot;Share Progress&quot; feature.
       </p>
       <p className="text-lg mb-4">I created this site for 2 reasons:</p>
       <ul className="list-disc pl-6 mb-4 text-lg">

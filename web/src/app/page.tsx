@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DialogClose } from '@radix-ui/react-dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Record = {
   date: Date;
@@ -171,7 +172,7 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <p className="text-center text-gray-600">Loading...</p>
+            <Skeleton className="h-[125px] w-full rounded-xl" />
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 text-center">
