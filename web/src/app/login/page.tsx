@@ -22,7 +22,7 @@ export default function LoginPage() {
 
   return (
     <div className="h-full flex flex-grow items-center justify-center bg-gradient-to-br from-white via-blue-50 to-blue-100">
-      <div className="max-w-md min-w-md mx-auto bg-white p-8 rounded shadow">
+      <div className="max-w-md md:min-w-md mx-auto bg-white p-8 rounded shadow">
         <h2 className="text-2xl mb-4 font-bold text-center text-blue-700">
           Login
         </h2>
