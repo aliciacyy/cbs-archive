@@ -1,6 +1,6 @@
 // app/login/page.tsx
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabasePublic } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,17 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    async function checkLoggedIn() {
+      // Step 1: Check if user is authenticated and fetch completed_clues
+      const loggedUser = await supabasePublic.auth.getUser();
+      if (!!loggedUser.data.user) {
+        router.push('/');
+      }
+    }
+    checkLoggedIn();
+  }, []);
 
   const handleLogin = async () => {
     const { error } = await supabasePublic.auth.signInWithPassword({
