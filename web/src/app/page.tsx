@@ -18,7 +18,7 @@ import { DialogClose } from '@radix-ui/react-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type Record = {
-  date: Date;
+  date: string; // Store as string to avoid timezone conversion
   link: string;
   isCompleted: boolean;
 };
@@ -53,7 +53,7 @@ export default function HomePage() {
       const json = await res.json();
 
       const parsed: Record[] = json.map((item: Record) => ({
-        date: new Date(item.date),
+        date: formatDateOnly(item.date), // Store as YYYY-MM-DD string
         link: item.link,
         isCompleted:
           completedData === null
@@ -209,7 +209,7 @@ export default function HomePage() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          {record.date.toLocaleDateString('en-GB')}
+                          {record.date}
                         </a>
                       </td>
                       <Dialog>
@@ -228,7 +228,7 @@ export default function HomePage() {
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle className="text-center mb-4">
-                              {record.date.toLocaleDateString('en-GB')}
+                              {record.date}
                             </DialogTitle>
                             <DialogDescription className="text-center">
                               Confirm completion of the puzzle?
@@ -239,7 +239,7 @@ export default function HomePage() {
                               asChild
                               className="cursor-pointer bg-blue-500 hover:bg-blue-600"
                               onClick={() => {
-                                updateRecord(record.date);
+                                updateRecord(new Date(record.date));
                               }}
                             >
                               <DialogClose>Yes</DialogClose>
