@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     .from('clues_by_sam_links')
     .select('date, link, is_completed')
     .gte('date', from)
-    .lte('date', toStr)
+    .lt('date', toStr)
     .order('date', { ascending: false });
 
   if (error || !data) {
