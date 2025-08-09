@@ -39,6 +39,7 @@ export default function HomePage() {
     new Date(date).toISOString().split('T')[0];
 
   const fetchFromDB = useCallback(async () => {
+    setLoading(true);
     const { data: completedData, error: completedError } = await supabasePublic
       .from('completed_clues')
       .select('*');
