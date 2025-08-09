@@ -27,9 +27,14 @@ def run():
             };
         """)
         page.goto("https://cluesbysam.com")
+        
+        # Click start game first
+        sbutton = page.locator("button", has_text="Start").first
+        sbutton.wait_for(timeout=10000)
+        sbutton.click()
 
         # Wait for the button and click it
-        button = page.locator("button", has_text="Share progress").first
+        button = page.locator("button", has_text="Share scenario").first
         button.wait_for(timeout=10000)
         button.click()
 
